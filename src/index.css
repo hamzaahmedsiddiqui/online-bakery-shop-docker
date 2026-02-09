@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 38 33% 97%;
+    --foreground: 25 15% 15%;
+
+    --card: 36 30% 95%;
+    --card-foreground: 25 15% 15%;
+
+    --popover: 38 33% 97%;
+    --popover-foreground: 25 15% 15%;
+
+    --primary: 152 25% 42%;
+    --primary-foreground: 38 33% 97%;
+
+    --secondary: 33 28% 90%;
+    --secondary-foreground: 25 15% 25%;
+
+    --muted: 35 20% 93%;
+    --muted-foreground: 25 10% 50%;
+
+    --accent: 15 35% 88%;
+    --accent-foreground: 15 30% 30%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 33 20% 88%;
+    --input: 33 20% 88%;
+    --ring: 152 25% 42%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 36 30% 95%;
+    --sidebar-foreground: 25 15% 25%;
+    --sidebar-primary: 152 25% 42%;
+    --sidebar-primary-foreground: 38 33% 97%;
+    --sidebar-accent: 33 28% 90%;
+    --sidebar-accent-foreground: 25 15% 25%;
+    --sidebar-border: 33 20% 88%;
+    --sidebar-ring: 152 25% 42%;
+
+    /* Custom BakeWell tokens */
+    --sage: 152 25% 42%;
+    --sage-light: 152 20% 92%;
+    --cream: 38 33% 97%;
+    --cream-dark: 36 30% 92%;
+    --warm: 25 30% 25%;
+    --warm-light: 25 15% 55%;
+    --blush: 15 35% 88%;
+    --blush-dark: 15 25% 75%;
+
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .dark {
+    --background: 25 15% 10%;
+    --foreground: 38 33% 95%;
+    --card: 25 15% 14%;
+    --card-foreground: 38 33% 95%;
+    --popover: 25 15% 10%;
+    --popover-foreground: 38 33% 95%;
+    --primary: 152 25% 50%;
+    --primary-foreground: 25 15% 10%;
+    --secondary: 25 15% 18%;
+    --secondary-foreground: 38 33% 95%;
+    --muted: 25 15% 18%;
+    --muted-foreground: 25 10% 60%;
+    --accent: 15 20% 20%;
+    --accent-foreground: 15 35% 88%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 25 15% 20%;
+    --input: 25 15% 20%;
+    --ring: 152 25% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer components {
+  .section-padding {
+    @apply px-6 py-16 md:px-12 md:py-24 lg:px-20;
+  }
+
+  .container-narrow {
+    @apply max-w-5xl mx-auto;
+  }
+
+  .container-wide {
+    @apply max-w-7xl mx-auto;
+  }
+
+  .badge-tag {
+    @apply inline-block px-3 py-1 rounded-full text-xs font-medium tracking-wide uppercase;
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
