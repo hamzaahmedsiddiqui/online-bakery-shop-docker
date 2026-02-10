@@ -1,5 +1,5 @@
 ## 🍪 BakeWell — Wholesome Baking for Mindful Living
-BakeWell is a health-focused bakery brand and WordPress website dedicated to creating gentle, nourishing baked goods—with a special focus on mothers, women, and mindful eaters.
+BakeWell is a health-focused bakery brand and website dedicated to creating gentle, nourishing baked goods—with a special focus on mothers, women, and mindful eaters.
 
 The brand is built around trust, simplicity, and care. Every product and every page is designed to feel calm, reassuring, and transparent.
 
