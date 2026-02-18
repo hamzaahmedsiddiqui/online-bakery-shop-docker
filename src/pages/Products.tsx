@@ -1,93 +1,135 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Heart, ShoppingCart } from "lucide-react";
 import Layout from "@/components/Layout";
-import lactationCookies from "@/assets/lactation-cookies.jpg";
-import proteinBrownies from "@/assets/protein-brownies.jpg";
-import eggFreeCookies from "@/assets/egg-free-cookies.jpg";
-import veganBananaBread from "@/assets/vegan-banana-bread.jpg";
+import { Button } from "@/components/ui/button";
+import { useProducts } from "@/hooks/useProducts";
+import { useCart } from "@/hooks/useCart";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
+
+const categories = ["All", "Lactation", "High Protein", "Egg-Free", "Vegan"];
+const sortOptions = [
+  { value: "newest", label: "Newest" },
+  { value: "price-asc", label: "Price: Low to High" },
+  { value: "price-desc", label: "Price: High to Low" },
+];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: (i: number) => ({
     opacity: 1, y: 0,
-    transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" as const },
+    transition: { delay: i * 0.08, duration: 0.4, ease: "easeOut" as const },
   }),
 };
 
-const products = [
-  {
-    name: "Lactation Cookies",
-    desc: "Our signature cookies crafted especially for nursing mothers. Made with oats, flaxseed, and brewer's yeast — traditional galactagogue ingredients used for generations to support milk production.",
-    img: lactationCookies,
-    tags: ["For Mothers", "Egg-Free Option"],
-    ingredients: "Oats, flaxseed, brewer's yeast, coconut oil, maple syrup, dark chocolate chips, vanilla extract",
-  },
-  {
-    name: "Protein Brownies",
-    desc: "Rich, fudgy brownies fortified with plant-based protein. Perfect for an energy boost after a workout or a busy day with little ones. Naturally sweetened.",
-    img: proteinBrownies,
-    tags: ["High Protein", "Egg-Free Option"],
-    ingredients: "Almond flour, pea protein, cocoa powder, coconut sugar, coconut oil, dark chocolate, vanilla",
-  },
-  {
-    name: "Egg-Free Cookies",
-    desc: "Classic chocolate chip cookies made entirely without eggs. Safe for those with egg allergies, and just as delicious as traditional recipes.",
-    img: eggFreeCookies,
-    tags: ["Egg-Free", "Allergy Friendly"],
-    ingredients: "Oat flour, coconut oil, coconut sugar, chocolate chips, baking soda, vanilla extract, flax egg",
-  },
-  {
-    name: "Vegan Banana Bread",
-    desc: "Moist, naturally sweetened banana bread made entirely from plant-based ingredients. Comforting, nourishing, and wonderfully simple.",
-    img: veganBananaBread,
-    tags: ["Vegan", "Egg-Free"],
-    ingredients: "Ripe bananas, oat flour, coconut oil, maple syrup, cinnamon, walnuts, baking soda",
-  },
-];
-
 const Products = () => {
+  const [category, setCategory] = useState("All");
+  const [sortBy, setSortBy] = useState("newest");
+  const { data: products, isLoading } = useProducts(category, sortBy);
+  const { user } = useAuth();
+  const { addToCart } = useCart();
+  const { toggleFavorite, isFavorite } = useFavorites();
+
+  const handleAddToCart = (productId: string) => {
+    if (!user) { toast({ title: "Please sign in", variant: "destructive" }); return; }
+    addToCart.mutate({ productId });
+  };
+
   return (
     <Layout>
       <section className="section-padding">
         <div className="container-wide">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-4">Our Bakes</h1>
             <p className="text-muted-foreground max-w-lg mx-auto">
-              Each product is made with wholesome, carefully sourced ingredients. We believe in full transparency — you'll always know exactly what's inside.
+              Each product is made with wholesome, carefully sourced ingredients.
             </p>
           </div>
 
-          <div className="space-y-20">
-            {products.map((p, i) => (
-              <motion.div
-                key={p.name}
-                custom={i}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-                className={`flex flex-col ${i % 2 === 1 ? "md:flex-row-reverse" : "md:flex-row"} gap-8 md:gap-12 items-center`}
-              >
-                <div className="md:w-1/2">
-                  <div className="aspect-[4/3] rounded-xl overflow-hidden bg-muted">
-                    <img src={p.img} alt={p.name} className="w-full h-full object-cover" loading="lazy" />
-                  </div>
-                </div>
-                <div className="md:w-1/2">
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {p.tags.map((t) => (
-                      <span key={t} className="badge-tag bg-sage-light text-primary">{t}</span>
-                    ))}
-                  </div>
-                  <h2 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-3">{p.name}</h2>
-                  <p className="text-muted-foreground leading-relaxed mb-4">{p.desc}</p>
-                  <div className="bg-card rounded-lg p-4 border border-border">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-foreground mb-1">Ingredients</p>
-                    <p className="text-sm text-muted-foreground">{p.ingredients}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+          {/* Filters */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+            <div className="flex flex-wrap gap-2">
+              {categories.map((c) => (
+                <Button
+                  key={c}
+                  variant={category === c ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCategory(c)}
+                >
+                  {c}
+                </Button>
+              ))}
+            </div>
+            <select
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              {sortOptions.map((s) => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
+            </select>
           </div>
+
+          {/* Product grid */}
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="bg-card rounded-xl border border-border animate-pulse">
+                  <div className="aspect-square bg-muted rounded-t-xl" />
+                  <div className="p-4 space-y-2">
+                    <div className="h-4 bg-muted rounded w-3/4" />
+                    <div className="h-3 bg-muted rounded w-1/2" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : products?.length === 0 ? (
+            <p className="text-center text-muted-foreground py-12">No products found in this category.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {products?.map((p, i) => {
+                const fav = user ? isFavorite(p.id) : false;
+                return (
+                  <motion.div key={p.id} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-card rounded-xl border border-border overflow-hidden group">
+                    <Link to={`/products/${p.id}`}>
+                      <div className="aspect-square bg-muted overflow-hidden">
+                        {p.image_url ? (
+                          <img src={p.image_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">No image</div>
+                        )}
+                      </div>
+                    </Link>
+                    <div className="p-4">
+                      <span className="badge-tag bg-sage-light text-primary text-[10px] mb-2">{p.category}</span>
+                      <Link to={`/products/${p.id}`}>
+                        <h3 className="font-serif text-lg font-semibold text-foreground mb-1 hover:text-primary transition-colors">{p.name}</h3>
+                      </Link>
+                      <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{p.description}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-lg font-semibold text-primary">€{Number(p.price).toFixed(2)}</span>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
+                            if (!user) { toast({ title: "Please sign in", variant: "destructive" }); return; }
+                            toggleFavorite.mutate(p.id);
+                          }}>
+                            <Heart size={16} className={fav ? "fill-destructive text-destructive" : ""} />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleAddToCart(p.id)}>
+                            <ShoppingCart size={16} />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
     </Layout>
