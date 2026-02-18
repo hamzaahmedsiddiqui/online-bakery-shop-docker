@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, Star, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, Star } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProducts } from "@/hooks/useProducts";
-import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 import type { Product } from "@/types/database";
 import { Navigate } from "react-router-dom";
+import { API_URL } from "@/config/api";
 
 const categories = ["Lactation", "High Protein", "Egg-Free", "Vegan"];
 
@@ -20,68 +20,111 @@ const AdminDashboard = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const { data: products, isLoading } = useProducts();
   const queryClient = useQueryClient();
-  const [editing, setEditing] = useState<Partial<Product> | null>(null);
-  const [uploading, setUploading] = useState(false);
+  const [editing, setEditing] = useState<Partial<Product & { id?: number | string }> | null>(null);
 
   if (authLoading) return <Layout><div className="section-padding text-center text-muted-foreground">Loading...</div></Layout>;
   if (!user || !isAdmin) return <Navigate to="/" replace />;
 
   const handleSave = async () => {
-    if (!editing?.name) { toast({ title: "Name is required", variant: "destructive" }); return; }
-    try {
-      if (editing.id) {
-        const { error } = await supabase.from("products").update({
-          name: editing.name, description: editing.description, price: editing.price,
-          calories: editing.calories, protein: editing.protein, category: editing.category,
-          is_featured: editing.is_featured, image_url: editing.image_url || null,
-        }).eq("id", editing.id);
-        if (error) throw error;
-        toast({ title: "Product updated" });
-      } else {
-        const { error } = await supabase.from("products").insert({
-          name: editing.name, description: editing.description ?? "", price: editing.price ?? 0,
-          calories: editing.calories, protein: editing.protein, category: editing.category ?? "Lactation",
-          is_featured: editing.is_featured ?? false, image_url: editing.image_url || null,
-        });
-        if (error) throw error;
-        toast({ title: "Product created" });
-      }
-      setEditing(null);
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
-    }
-  };
+  if (!editing?.name) {
+    toast({ title: "Name is required", variant: "destructive" });
+    return;
+  }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this product?")) return;
-    const { error } = await supabase.from("products").delete().eq("id", id);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else {
-      toast({ title: "Product deleted" });
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-    }
-  };
+  const token = localStorage.getItem("token");
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    const ext = file.name.split(".").pop();
-    const path = `${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("product-images").upload(path, file);
-    if (error) { toast({ title: "Upload failed", description: error.message, variant: "destructive" }); setUploading(false); return; }
-    const { data: { publicUrl } } = supabase.storage.from("product-images").getPublicUrl(path);
-    setEditing((prev) => prev ? { ...prev, image_url: publicUrl } : prev);
-    setUploading(false);
-    toast({ title: "Image uploaded" });
-  };
+  try {
+    const method = editing.id ? "PUT" : "POST";
+    const endpoint = editing.id
+      ? `${API_URL}/products/${editing.id}`
+      : `${API_URL}/products`;
 
-  const toggleFeatured = async (product: Product) => {
-    await supabase.from("products").update({ is_featured: !product.is_featured }).eq("id", product.id);
+    const res = await fetch(endpoint, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(editing),
+    });
+
+    if (!res.ok) throw new Error("Failed to save product");
+
+    toast({ title: editing.id ? "Product updated" : "Product created" });
+    setEditing(null);
     queryClient.invalidateQueries({ queryKey: ["products"] });
-  };
+  } catch (err: any) {
+    toast({ title: "Error", description: err.message, variant: "destructive" });
+  }
+};
 
+ const handleDelete = async (id: number) => {
+  if (!confirm("Delete this product?")) return;
+
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API_URL}/products/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    toast({ title: "Error deleting product", variant: "destructive" });
+    return;
+  }
+
+  toast({ title: "Product deleted" });
+  queryClient.invalidateQueries({ queryKey: ["products"] });
+};
+
+// We’ll integrate S3 later properly. For now, this is just a placeholder to simulate image upload and get a URL back.
+<div>
+  <label className="text-xs text-muted-foreground block mb-1">
+    Image URL
+  </label>
+  <Input
+    placeholder="https://example.com/image.jpg"
+    value={editing?.image_url ?? ""}
+    onChange={(e) =>
+      setEditing({ ...editing, image_url: e.target.value })
+    }
+  />
+  {editing?.image_url && (
+    <img
+      src={editing.image_url}
+      alt="Preview"
+      className="mt-2 w-24 h-24 object-cover rounded-lg"
+    />
+  )}
+</div>
+
+const toggleFeatured = async (product: { id: number; name: string; description: string; image_url?: string; price: number; calories?: number; protein?: number; category?: string; is_featured: boolean }) => {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API_URL}/products/${product.id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      ...product,
+      is_featured: !product.is_featured,
+    }),
+  });
+
+  if (!res.ok) {
+    toast({ title: "Error updating product", variant: "destructive" });
+    return;
+  }
+
+  queryClient.invalidateQueries({ queryKey: ["products"] });
+};
+console.log("USER:", user);
+console.log("IS ADMIN:", isAdmin);
+console.log("AUTH LOADING:", authLoading);
   return (
     <Layout>
       <section className="section-padding">
@@ -130,12 +173,24 @@ const AdminDashboard = () => {
                     Featured product
                   </label>
                   <div>
-                    <label className="text-xs text-muted-foreground block mb-1">Product Image</label>
-                    <div className="flex gap-2">
-                      <Input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
-                    </div>
-                    {editing.image_url && <img src={editing.image_url} alt="Preview" className="mt-2 w-24 h-24 object-cover rounded-lg" />}
-                  </div>
+  <label className="text-xs text-muted-foreground block mb-1">
+    Image URL
+  </label>
+  <Input
+    placeholder="https://example.com/image.jpg"
+    value={editing?.image_url ?? ""}
+    onChange={(e) =>
+      setEditing({ ...editing, image_url: e.target.value })
+    }
+  />
+  {editing?.image_url && (
+    <img
+      src={editing.image_url}
+      alt="Preview"
+      className="mt-2 w-24 h-24 object-cover rounded-lg"
+    />
+  )}
+</div>
                 </div>
                 <div className="flex gap-3 mt-6">
                   <Button onClick={handleSave} className="flex-1">Save</Button>
@@ -173,5 +228,6 @@ const AdminDashboard = () => {
     </Layout>
   );
 };
+
 
 export default AdminDashboard;

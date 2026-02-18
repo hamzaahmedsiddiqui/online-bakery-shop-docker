@@ -40,9 +40,8 @@ const Favorites = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {favorites.map((fav) => {
-                const product = fav.products as any;
-                if (!product) return null;
+              {favorites.map((fav: any) => {
+                const product = fav; // product fields are already flat
                 return (
                   <motion.div key={fav.id} layout className="bg-card rounded-xl border border-border overflow-hidden">
                     <Link to={`/products/${product.id}`}>

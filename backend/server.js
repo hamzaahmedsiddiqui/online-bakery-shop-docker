@@ -23,6 +23,15 @@ app.get("/", async (req, res) => {
 
 app.use("/api", require("./routes/auth"));
 
+// Product routes
+app.use("/api/products", require("./routes/products"));
+
+// Favorites routes
+app.use("/api/favorites", require("./routes/favorites"));
+
+// Cart routes
+app.use("/api/cart", require("./routes/cart"));
+
 app.listen(process.env.PORT || 5050, () => {
   console.log("Server running on port 5050");
 });

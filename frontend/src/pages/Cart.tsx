@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 
 const Cart = () => {
@@ -27,33 +26,27 @@ const Cart = () => {
     );
   }
 
-  const handleCheckout = async () => {
-    if (cart.length === 0) return;
-    setCheckingOut(true);
-    try {
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert({ user_id: user.id, total: cartTotal, status: "completed" })
-        .select()
-        .single();
-      if (orderError) throw orderError;
+const handleCheckout = async () => {
+  if (cart.length === 0) return;
 
-      const orderItems = cart.map((item) => ({
-        order_id: order.id,
-        product_id: item.product_id,
-        quantity: item.quantity,
-        price: (item.products as any)?.price ?? 0,
-      }));
-      const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
-      if (itemsError) throw itemsError;
+  setCheckingOut(true);
 
-      await clearCart.mutateAsync();
-      toast({ title: "Order placed!", description: "Thank you for your purchase." });
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
-    }
-    setCheckingOut(false);
-  };
+  try {
+    await clearCart.mutateAsync();
+    toast({
+      title: "Order placed!",
+      description: "Mock checkout complete.",
+    });
+  } catch (err: any) {
+    toast({
+      title: "Error",
+      description: err.message,
+      variant: "destructive",
+    });
+  }
+
+  setCheckingOut(false);
+};
 
   return (
     <Layout>
@@ -72,31 +65,31 @@ const Cart = () => {
             <>
               <div className="space-y-4 mb-8">
                 {cart.map((item) => {
-                  const product = item.products as any;
+                  const product = item;
                   return (
                     <motion.div key={item.id} layout className="flex items-center gap-4 bg-card rounded-lg p-4 border border-border">
                       <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                        {product?.image_url ? (
-                          <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                        {item?.image_url ? (
+                          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">No img</div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-serif font-semibold text-foreground truncate">{product?.name}</h3>
-                        <p className="text-primary font-medium">€{Number(product?.price ?? 0).toFixed(2)}</p>
+                        <p className="text-primary font-medium">€{Number(item?.price ?? 0).toFixed(2)}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity.mutate({ itemId: item.id, quantity: item.quantity - 1 })}>
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity.mutate({ productId: item.product_id, quantity: item.quantity - 1 })}>
                           <Minus size={14} />
                         </Button>
                         <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
-                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity.mutate({ itemId: item.id, quantity: item.quantity + 1 })}>
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity.mutate({ productId: item.product_id, quantity: item.quantity + 1 })}>
                           <Plus size={14} />
                         </Button>
                       </div>
-                      <p className="font-semibold text-foreground w-20 text-right">€{(Number(product?.price ?? 0) * item.quantity).toFixed(2)}</p>
-                      <Button variant="ghost" size="icon" className="text-destructive" onClick={() => removeFromCart.mutate(item.id)}>
+                      <p className="font-semibold text-foreground w-20 text-right">€{(Number(item?.price ?? 0) * item.quantity).toFixed(2)}</p>
+                      <Button variant="ghost" size="icon" className="text-destructive" onClick={() => removeFromCart.mutate(item.product_id)}>
                         <Trash2 size={16} />
                       </Button>
                     </motion.div>

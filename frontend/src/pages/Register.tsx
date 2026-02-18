@@ -26,10 +26,13 @@ const Register = () => {
     setLoading(false);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Account created!", description: "Please check your email to confirm your account." });
-      navigate("/login");
-    }
+} else {
+  toast({ 
+    title: "Account created!",
+    description: "You can now log in."
+  });
+  navigate("/login");
+}
   };
 
   return (
