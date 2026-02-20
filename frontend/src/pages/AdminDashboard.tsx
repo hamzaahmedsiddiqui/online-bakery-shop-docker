@@ -20,7 +20,7 @@ const AdminDashboard = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const { data: products, isLoading } = useProducts();
   const queryClient = useQueryClient();
-  const [editing, setEditing] = useState<Partial<Product & { id?: number | string }> | null>(null);
+  const [editing, setEditing] = useState<Partial<Product> | null>(null);
 
   if (authLoading) return <Layout><div className="section-padding text-center text-muted-foreground">Loading...</div></Layout>;
   if (!user || !isAdmin) return <Navigate to="/" replace />;
