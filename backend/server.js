@@ -32,6 +32,11 @@ app.use("/api/favorites", require("./routes/favorites"));
 // Cart routes
 app.use("/api/cart", require("./routes/cart"));
 
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
 app.listen(process.env.PORT || 5050, () => {
   console.log("Server running on port 5050");
 });
+

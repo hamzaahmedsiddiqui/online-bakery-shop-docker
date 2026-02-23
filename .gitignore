@@ -25,3 +25,6 @@ dist-ssr
 *.sw?
 # Optional npm cache directory
 .npm
+.env
+.terraform/
+*.tfstate
