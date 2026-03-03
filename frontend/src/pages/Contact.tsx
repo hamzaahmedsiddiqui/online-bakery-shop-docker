@@ -20,7 +20,7 @@ const Contact = () => {
               <h2 className="font-serif text-2xl font-bold text-foreground mb-6">Get in Touch</h2>
               <div className="space-y-6">
                 {[
-                  { icon: Mail, label: "Email", value: "hello@bakewell.de" },
+                  { icon: Mail, label: "Email", value: "contact@bakewell.de" },
                   { icon: MapPin, label: "Location", value: "Germany" },
                   { icon: Clock, label: "Response Time", value: "We usually reply within 24 hours" },
                 ].map((item) => (
