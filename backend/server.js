@@ -1,3 +1,8 @@
+pool.query("SELECT NOW()")
+  .then(() => console.log("✅ Database connected"))
+  .catch(err => console.error("❌ Database connection failed:", err.message));
+
+
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -32,8 +37,21 @@ app.use("/api/favorites", require("./routes/favorites"));
 // Cart routes
 app.use("/api/cart", require("./routes/cart"));
 
-app.get("/health", (req, res) => {
-  res.status(200).send("OK");
+app.get("/health", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT 1");
+    res.status(200).json({
+      status: "OK",
+      db: "connected"
+    });
+  } catch (err) {
+    console.error("DB ERROR:", err.message);
+    res.status(500).json({
+      status: "ERROR",
+      db: "not connected",
+      error: err.message
+    });
+  }
 });
 
 app.listen(process.env.PORT || 5050, () => {
