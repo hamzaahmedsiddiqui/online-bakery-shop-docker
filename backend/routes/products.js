@@ -84,9 +84,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
     category,
     is_featured,
     image_url,
-  } = req.body;  name,
+  } = req.body;
   
-
   try {
     const result = await pool.query(
       `
