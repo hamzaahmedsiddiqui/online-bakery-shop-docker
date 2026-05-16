@@ -77,7 +77,6 @@ router.put("/:id", authenticateToken, async (req, res) => {
 
   const id = req.params.id;
   const {
-    name,
     description,
     price,
     calories,
@@ -86,7 +85,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
     is_featured,
     image_url,
   } = req.body;
-
+  
   try {
     const result = await pool.query(
       `

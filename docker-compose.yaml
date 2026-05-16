@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: bakewell-postgres
+    environment:
+      POSTGRES_USER: hamzaahmed
+      POSTGRES_PASSWORD: password1234
+      POSTGRES_DB: bakewell_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hamzaahmed -d bakewell_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  backend:
+    build: ./backend
+    container_name: bakewell-backend
+    ports:
+      - "5050:5050"
+    environment:
+      port: 5050
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: hamzaahmed
+      DB_PASSWORD: password1234
+      DB_NAME: bakewell_dev
+      JWT_SECRET: supersecretkey
+    depends_on:
+      postgres:
+        condition: service_healthy
+  frontend:
+    build: ./frontend
+    container_name: bakewell-frontend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
+volumes:
+  postgres_data:

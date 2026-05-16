@@ -10,6 +10,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
+
 const categories = ["All", "Lactation", "High Protein", "Egg-Free", "Vegan"];
 const sortOptions = [
   { value: "newest", label: "Newest" },
