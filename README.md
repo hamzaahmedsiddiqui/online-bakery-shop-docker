@@ -1,6 +1,6 @@
-# BakeWell: Online Bakery Shop (Docker, CI/CD, AWS)
+# BakeWell: Online Bakery Shop (Docker & CI/CD)
 
-BakeWell is a full-stack bakery shop: product catalogue, user accounts, favorites and cart, plus an admin dashboard. It runs fully in Docker and was deployed on AWS.
+BakeWell is a full-stack bakery shop: product catalogue, user accounts, favorites and cart, plus an admin dashboard. It runs fully in Docker, with CI in GitHub Actions.
 
 ![Docker build](https://github.com/hamzaahmedsiddiqui/online-bakery-shop-docker-aws/actions/workflows/docker-build.yml/badge.svg)
 
@@ -22,7 +22,6 @@ BakeWell is a full-stack bakery shop: product catalogue, user accounts, favorite
 - **Database:** PostgreSQL 16 (schema managed with Prisma migrations)
 - **Containers:** Docker, Docker Compose
 - **CI:** GitHub Actions (builds both images and smoke-tests the full stack)
-- **Cloud:** AWS (EC2, Nginx reverse proxy, RDS, Application Load Balancer)
 
 ## Architecture
 
@@ -31,8 +30,6 @@ Browser ──► Nginx (frontend container, :8080)
               ├── /        → React static files
               └── /api/*   → backend container (:5050) ──► PostgreSQL (:5432)
 ```
-
-On AWS: User → ALB / Nginx on EC2 → React build + Node API → Amazon RDS.
 
 ## Run locally with Docker
 
