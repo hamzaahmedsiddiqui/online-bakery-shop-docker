@@ -1,20 +1,16 @@
-# Use official Node image
 FROM node:20-alpine
 
-# Create app directory
+ENV NODE_ENV=production
 WORKDIR /app
 
-# Copy package files first (better caching)
+# Copy package files first so the install step is cached
 COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
 
-# Install dependencies
-RUN npm ci --only=production
-
-# Copy source code
 COPY . .
 
-# Expose port
-EXPOSE 5050
+# Run as the non-root "node" user that ships with the image
+USER node
 
-# Start app
+EXPOSE 5050
 CMD ["node", "server.js"]
