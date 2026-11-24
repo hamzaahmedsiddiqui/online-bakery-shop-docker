@@ -5,7 +5,7 @@ BakeWell is a full-stack bakery shop: product catalogue, user accounts, favorite
 ![Docker build](https://github.com/hamzaahmedsiddiqui/online-bakery-shop-docker-aws/actions/workflows/docker-build.yml/badge.svg)
 
 > **Project focus:** This project was built to practice and show **Docker and DevOps skills**: containerizing a full-stack app, Docker Compose, multi-stage builds, health checks, secrets handling and CI with GitHub Actions.
-> The web shop itself is a working demo, not a finished product. Some features, such as payment and checkout, are not built.
+> The web shop itself is a working demo, not a finished product. For example, checkout is a mock and no real payment is processed.
 
 ## Screenshots
 
