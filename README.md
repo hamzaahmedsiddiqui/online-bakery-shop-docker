@@ -1,4 +1,4 @@
-# BakeWell
+# online-bakery-shop-docker-aws
 
 BakeWell is a full-stack bakery shop: product catalogue, user accounts, favorites and cart, plus an admin dashboard. It runs fully in Docker and was deployed on AWS.
 
