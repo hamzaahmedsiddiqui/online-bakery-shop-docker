@@ -4,6 +4,14 @@ BakeWell is a full-stack bakery shop: product catalogue, user accounts, favorite
 
 ![Docker build](https://github.com/hamzaahmedsiddiqui/online-bakery-shop-docker-aws/actions/workflows/docker-build.yml/badge.svg)
 
+## Screenshots
+
+![Home page](docs/screenshots/home.jpg)
+
+| Products | Product detail |
+|----------|----------------|
+| ![Products page](docs/screenshots/products.jpg) | ![Product detail page](docs/screenshots/product-detail.jpg) |
+
 ## Tech stack
 
 - **Frontend:** React (Vite + TypeScript), served by Nginx
