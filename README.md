@@ -38,7 +38,7 @@ docker compose up --build
 | Backend  | http://localhost:5050/health   |
 | Postgres | localhost:5432                 |
 
-On the first start, the database tables are created from `backend/prisma/migrations` (see `db/init-db.sh`).
+On the first start, the database tables are created from `backend/prisma/migrations` and 8 sample products are loaded from `db/seed.sql` (see `db/init-db.sh`).
 
 Stop and remove everything, including the database volume:
 
